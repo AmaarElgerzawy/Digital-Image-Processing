@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before GUI is made visible.
 function GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -54,6 +53,12 @@ function GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for GUI
 handles.output = hObject;
+
+handles.image_path = '';
+handles.image_1 = '';
+handles.image_2 = '';
+handles.image_hist_1 = [];
+handles.image_hist_2 = [];
 
 % Update handles structure
 guidata(hObject, handles);
@@ -89,7 +94,31 @@ function rg_convert_Callback(hObject, eventdata, handles)
 
 % --- Executes on button press in upload_start.
 function upload_start_Callback(hObject, eventdata, handles)
-    display('Hello World');
+    handles.image_path = imgetfile;
+    
+    myImage = rgb2gray(imread(handles.image_path));
+    
+    set(handles.axes1,'Units','pixels');
+    resizePos1 = get(handles.axes1,'Position');
+    handles.image_1 = imresize(myImage, [resizePos1(3) resizePos1(3)]);
+    axes(handles.axes1);
+    imshow(handles.image_1);
+    set(handles.axes1,'Units','normalized');
+    
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(myImage, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_1);
+    stem(handles.axes3,binLocations,counts);
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % hObject    handle to upload_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
