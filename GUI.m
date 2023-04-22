@@ -167,6 +167,7 @@ function contrast_function_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+
 % --- Executes on button press in smoothing_function.
 function smoothing_function_Callback(hObject, eventdata, handles)
 % hObject    handle to smoothing_function (see GCBO)
