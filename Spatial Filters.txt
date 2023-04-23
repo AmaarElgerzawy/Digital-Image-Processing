@@ -1,0 +1,48 @@
+Geometric Mean Filter
+---------------------
+code 1
+------
+I --> is the image
+h --> the kernel filled with ones having size of the neighborhood you use to compute the average
+geo_mean = imfilter(log(I), h, 'replicate');
+geo_mean = exp(geo_mean);
+geo_mean = geo_mean .^ (1/numel(h));
+
+code 2
+------
+I = imread('ourImage.jpg');
+I = rgb2gray(I);
+Kr = 5;
+Kc = 5;
+g=im2double(I);
+F= exp(imfilter(log(g), ones(Kr, Kc), 'replicate').^(1/(Kr*Kc));
+------------------------------------------------------------------------------------------------
+Harmonic Mean Filter
+---------------------
+I = imread('ourImage.jpg');
+I = rgb2gray(I);	--> we can comment this if we want it as RGB
+SI = imnoise(I, 'salt&pepper');
+GI = imnoise(I, 'gaussian');
+Kr = 3;
+Kc = 3;
+Sg=im2double(SI);
+Gg=im2double(GI);
+SF = (Kr*Kc)./imfilter(1./(Sg+eps), ones(Kr, Kc), 'replicate');
+GF = (Kr*Kc)./imfilter(1./(Gg+eps), ones(Kr, Kc), 'replicate');
+
+figure
+imshow(SI) or imshow(GI)
+------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------
+another way
+b) Geometric mean filter
+f = exp(imfilter(log(g), ones(m, n), 'replicate')) .^ (1/(m*n))
+
+c) Harmonic mean filter
+f = (m*n) ./ imfilter(1 ./ (g + eps), ones(m, n), 'replicate');
+
+--> where n and m are size of a mask (for instace you can set m=3 n=3)
+
