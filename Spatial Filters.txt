@@ -33,8 +33,40 @@ GF = (Kr*Kc)./imfilter(1./(Gg+eps), ones(Kr, Kc), 'replicate');
 figure
 imshow(SI) or imshow(GI)
 ------------------------------------------------------------------------------------------------
+Contra Harmonic Mean Filter
+---------------------------
+I = imread('ourImage.jpg');
+I = rgb2gray(I);	--> we can comment this if we want it as RGB
+SI = imnoise(I, 'salt & pepper');
+GI = imnoise(I, 'gaussian');
+Ord = 1;
+Kr = 3;
+Kc = 3;
 
+Sg=im2double(SI);
+Gg=im2double(GI);
 
+SF=imfilter(Sg.^(Ord+1), ones(Kr, Kc), 'replicate')./imfilter(Sg.^(Ord), ones(Kr,Kc), 'replicate');
+GF=imfilter(Gg.^(Ord+1), ones(Kr, Kc), 'replicate')./imfilter(Gg.^(Ord), ones(Kr,Kc), 'replicate');
+
+--> to show the output image
+figure
+
+subplot(221)
+imshow(SI)
+title(.\bf\fontsize{25} Image with salt and Pepper Noise')
+
+subplot(222)
+imshow(SF)
+title(.\bf\fontsize{25} Filtered Image')
+
+subplot(223)
+imshow(GI)
+title(.\bf\fontsize{25} Image with Gaussian Noise')
+
+subplot(224)
+imshow(GF)
+title(.\bf\fontsize{25} Filtered Image')
 
 ------------------------------------------------------------------------------------------------
 another way
