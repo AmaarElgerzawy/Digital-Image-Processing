@@ -67,7 +67,6 @@ title(.\bf\fontsize{25} Image with Gaussian Noise')
 subplot(224)
 imshow(GF)
 title(.\bf\fontsize{25} Filtered Image')
-
 ------------------------------------------------------------------------------------------------
 another way
 b) Geometric mean filter
@@ -77,4 +76,3 @@ c) Harmonic mean filter
 f = (m*n) ./ imfilter(1 ./ (g + eps), ones(m, n), 'replicate');
 
 --> where n and m are size of a mask (for instace you can set m=3 n=3)
-
