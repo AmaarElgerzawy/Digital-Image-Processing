@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 21-Apr-2023 18:05:27
+% Last Modified by GUIDE v2.5 24-Apr-2023 08:39:41
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -66,9 +66,6 @@ handles.output = hObject;
 handles.image_path = '';
 handles.image_1 = '';
 handles.image_2 = '';
-handles.image_hist_1 = [];
-handles.image_hist_2 = [];
-
 
 % Update handles structure
 guidata(hObject, handles);
@@ -87,12 +84,24 @@ function varargout = GUI_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
 % --- Executes on button press in bw_convert.
 function bw_convert_Callback(hObject, eventdata, handles)
 % hObject    handle to bw_convert (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 = imbinarize(handles.image_2);
+
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 
 
 % --- Executes on button press in rg_convert.
@@ -126,9 +135,7 @@ function upload_start_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     handles.image_path = imgetfile;
-    
-    %myImage = rgb2gray(imread(handles.image_path));
-
+    %     % Convert the image to grayscale if it isn't already
     myImage = imread(handles.image_path);
     
     set(handles.axes1,'Units','pixels');
@@ -154,14 +161,46 @@ function upload_start_Callback(hObject, eventdata, handles)
     guidata(hObject, handles);
 
 
-
-% --- Executes on button press in original_start.
-function original_start_Callback(hObject, eventdata, handles)
-% hObject    handle to original_start (see GCBO)
+% --- Executes on button press in resetmain_start.
+function resetmain_start_Callback(hObject, eventdata, handles)
+% hObject    handle to resetmain_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_1 = rgb2gray(imread(handles.image_path));
+    
+    set(handles.axes1,'Units','pixels');
+    resizePos1 = get(handles.axes1,'Position');
+    handles.image_1 = imresize(handles.image_1, [resizePos1(3) resizePos1(3)]);
+    axes(handles.axes1);
+    imshow(handles.image_1);
+    set(handles.axes1,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_1);
+    stem(handles.axes3,binLocations,counts);
+    
+    guidata(hObject, handles);
+    
 
-
+% --- Executes on button press in resetworking_start.
+function resetworking_start_Callback(hObject, eventdata, handles)
+% hObject    handle to resetworking_start (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 = handles.image_1;
+    
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
+    
+    
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
 % hObject    handle to slider1 (see GCBO)
@@ -190,14 +229,50 @@ function histrogram_function_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+    % Calculate the histogram of the grayscale image
+    histogram = imhist(handles.image_2);
+    % Calculate the cumulative distribution function (CDF) of the histogram
+    cdf = cumsum(histogram) / numel(handles.image_2);
+    % Calculate the equalized intensity values using the CDF
+    equalized_values = uint8(255 * cdf(handles.image_2 + 1));
+    % Create a new image with the equalized intensity values
+    handles.image_2 = reshape(equalized_values, size(handles.image_2));
+    
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
+    
 % --- Executes on button press in contrast_function.
 function contrast_function_Callback(hObject, eventdata, handles)
 % hObject    handle to contrast_function (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+    % Apply contrast stretching to the image
+    stretched_Image = imadjust(handles.image_2, stretchlim(handles.image_2, [0.05, 0.95]),[]);
 
+    % Convert the image back to uint8 format
+    handles.image_2 = uint8(stretched_Image);
+    
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+        
+    guidata(hObject, handles);
 
 % --- Executes on button press in smoothing_function.
 function smoothing_function_Callback(hObject, eventdata, handles)
@@ -211,14 +286,40 @@ function sharpening_function_Callback(hObject, eventdata, handles)
 % hObject    handle to sharpening_function (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 = imsharpen(handles.image_2);
+    
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+        
+    guidata(hObject, handles);
 
 
-% --- Executes on button press in make_start.
-function make_start_Callback(hObject, eventdata, handles)
-% hObject    handle to make_start (see GCBO)
+% --- Executes on button press in set_start.
+function set_start_Callback(hObject, eventdata, handles)
+% hObject    handle to set_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    handles.image_1 = handles.image_2;
+    
+    set(handles.axes1,'Units','pixels');
+    resizePos2 = get(handles.axes1,'Position');
+    handles.image_1 = imresize(handles.image_1, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes1);
+    imshow(handles.image_1);
+    set(handles.axes1,'Units','normalized');
+    
+    [counts,binLocations] = imhist(handles.image_1);
+    stem(handles.axes3,binLocations,counts);
+        
+    guidata(hObject, handles);
+    
 
 % --- Executes on slider movement.
 function slider2_Callback(hObject, eventdata, handles)
