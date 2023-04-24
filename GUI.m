@@ -166,7 +166,7 @@ function resetmain_start_Callback(hObject, eventdata, handles)
 % hObject    handle to resetmain_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_1 = rgb2gray(imread(handles.image_path));
+    handles.image_1 = imread(handles.image_path);
     
     set(handles.axes1,'Units','pixels');
     resizePos1 = get(handles.axes1,'Position');
