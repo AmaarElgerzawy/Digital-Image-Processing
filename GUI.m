@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 24-Apr-2023 08:39:41
+% Last Modified by GUIDE v2.5 25-Apr-2023 00:49:30
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -518,29 +518,60 @@ function removeNoise(hObject,handles)
         
         % Apply a median filter to the image
         filter_size = 3; % Adjust this value to change the size of the filter
-        handles.image_2 = medfilt2(handles.image_2, [filter_size filter_size]);
-    
+        handles.image_2 = medfilt2(gray_img, [filter_size filter_size]);
 
-
-
-        imshow(handles.image_2);
-        set(handles.axes2,'Units','normalized');
-            
-            
-        [counts,binLocations] = imhist(handles.image_2);
-        stem(handles.axes4,binLocations,counts);
-
-        guidata(hObject, handles);
-        
-    elseif handles.noise == 2
+    elseif handles.noise == 2 || handles.noise == 3
         %apply gaussian noise remove
+        % Convert the image to grayscale if it isn't already
+        if ndims(handles.image_2) == 3
+            gray_img = rgb2gray(handles.image_2);
+        else
+            gray_img = handles.image_2;
+        end
+  
+        % Apply a Gaussian filter to the image
+        gaussianFilter = fspecial('gaussian', [3 3], 2);
+        filteredImage = imfilter(gray_img, gaussianFilter);
 
-    elseif handles.noise == 3
-        %apply spekle noise remove
-        
+         % Apply a median filter to the image
+        filter_size = 3; % Adjust this value to change the size of the filter
+        handles.image_2 = medfilt2(filteredImage, [filter_size filter_size]);
+    
     elseif handles.noise == 4
         %apply periodic noise remove
+
+        % Convert the image to grayscale if it isn't already
+        if ndims(handles.image_2) == 3
+            gray_img = rgb2gray(handles.image_2);
+        else
+            gray_img = handles.image_2;
+        end
+        % Compute the Fourier transform of the image
+        ftImage = fft2(double(gray_img));
+        
+        % Create a notch filter to remove the periodic noise
+        D0 = 50; % distance from the origin to the notch filter
+        w = 5; % width of the notch filter
+        h = size(gray_img, 1);
+        w1 = round(h/2) - w/2; % location of the first notch filter
+        w2 = round(h/2) + w/2; % location of the second notch filter
+        notchFilter = ones(h);
+        notchFilter(w1:w2, round(h/2) - D0:round(h/2) + D0) = 0;
+        notchFilter(round(h/2) - D0:round(h/2) + D0, w1:w2) = 0;
+        
+        % Apply the notch filter to the Fourier transform of the image
+        filteredFtImage = ftImage .* notchFilter;
+        
+        % Compute the inverse Fourier transform to get the filtered image
+        handles.image_2 = real(ifft2(filteredFtImage));
     end
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts)
+    handles.noise = 0  
+    guidata(hObject, handles);
+    
 
 
 
@@ -549,7 +580,7 @@ function pushbutton17_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton17 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    removeNoise(hObject,handles)
+    
 
 
 
@@ -564,10 +595,10 @@ function sp_noise_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of sp_noise
 
-    removeNoise(hObject,handles)
+    
 
 if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
-    
+    removeNoise(hObject,handles)
     % Add salt and pepper noise
     noise_density = 0.05; % Adjust this value to change the density of noise
     noisy_img = imnoise(handles.image_2, 'salt & pepper', noise_density);
@@ -597,9 +628,10 @@ function gaussian_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of gaussian_noise
-removeNoise(hObject,handles);
-if (get(hObject,'Value') == get(hObject,'Max'))
+%
+if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2
 
+    removeNoise(hObject,handles);
     
     % Add Gaussian noise
     noise_mean = 0; % Mean of the noise
@@ -629,7 +661,7 @@ function speckle_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of speckle_noise
-if (get(hObject,'Value') == get(hObject,'Max'))
+if (get(hObject,'Value') == get(hObject,'Max'))&& handles.noise ~= 3
     removeNoise(hObject,handles);
     % Add speckle noise
     noise_density = 0.05; % Adjust this value to change the density of noise
@@ -657,10 +689,11 @@ function periodic_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of periodic_noise
-if (get(hObject,'Value') == get(hObject,'Max'))
+if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
 
 
-    removeNoise(hObject,handles);
+
+    %removeNoise(hObject,handles);
     % Convert the image to grayscale if it isn't already
     if ndims(handles.image_2) == 3
         gray_img = rgb2gray(handles.image_2);
@@ -703,3 +736,11 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     handles.noise = 4;
     guidata(hObject, handles);
 end
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    removeNoise(hObject,handles)
