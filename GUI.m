@@ -66,6 +66,7 @@ handles.output = hObject;
 handles.image_path = '';
 handles.image_1 = '';
 handles.image_2 = '';
+handles.noise = 0;
 handles.image_hist_1 = [];
 handles.image_hist_2 = [];
 
@@ -399,13 +400,51 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+function removeNoise(hObject,handles)
+    if handles.noise == 1
+        %apply salt&pepper noise remove
+
+        % Convert the image to grayscale if it isn't already
+        if ndims(handles.image_2) == 3
+            gray_img = rgb2gray(handles.image_2);
+        else
+            gray_img = handles.image_2;
+        end
+        
+        % Apply a median filter to the image
+        filter_size = 3; % Adjust this value to change the size of the filter
+        handles.image_2 = medfilt2(handles.image_2, [filter_size filter_size]);
+    
+
+
+
+        imshow(handles.image_2);
+        set(handles.axes2,'Units','normalized');
+            
+            
+        [counts,binLocations] = imhist(handles.image_2);
+        stem(handles.axes4,binLocations,counts);
+
+        guidata(hObject, handles);
+        
+    elseif handles.noise == 2
+        %apply gaussian noise remove
+
+    elseif handles.noise == 3
+        %apply spekle noise remove
+        
+    elseif handles.noise == 4
+        %apply periodic noise remove
+    end
+
+
 
 % --- Executes on button press in pushbutton17.
 function pushbutton17_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton17 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    removeNoise(hObject,handles)
 
 
 
@@ -419,12 +458,16 @@ function sp_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of sp_noise
-if (get(hObject,'Value') == get(hObject,'Max'))
+
+    removeNoise(hObject,handles)
+
+if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
+    
     % Add salt and pepper noise
     noise_density = 0.05; % Adjust this value to change the density of noise
     noisy_img = imnoise(handles.image_2, 'salt & pepper', noise_density);
     
-    %handles.image_2=noisy_img;
+    
     
     set(handles.axes2,'Units','pixels');
     resizePos2 = get(handles.axes2,'Position');
@@ -437,6 +480,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
         
+    handles.noise = 1;
     guidata(hObject, handles);
 end
 
@@ -448,12 +492,15 @@ function gaussian_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of gaussian_noise
+removeNoise(hObject,handles);
 if (get(hObject,'Value') == get(hObject,'Max'))
 
+    
     % Add Gaussian noise
     noise_mean = 0; % Mean of the noise
     noise_var = 0.01; % Variance of the noise
     noisy_img = imnoise(handles.image_2, 'gaussian', noise_mean, noise_var);
+
 
     set(handles.axes2,'Units','pixels');
     resizePos2 = get(handles.axes2,'Position');
@@ -465,7 +512,8 @@ if (get(hObject,'Value') == get(hObject,'Max'))
         
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
-        
+    
+    handles.noise = 2;
     guidata(hObject, handles);
 end
 
@@ -477,6 +525,7 @@ function speckle_noise_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of speckle_noise
 if (get(hObject,'Value') == get(hObject,'Max'))
+    removeNoise(hObject,handles);
     % Add speckle noise
     noise_density = 0.05; % Adjust this value to change the density of noise
     noisy_img = imnoise(handles.image_2, 'speckle', noise_density);
@@ -492,6 +541,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
         
+    handles.noise = 3;
     guidata(hObject, handles);
 end
 
@@ -505,6 +555,7 @@ function periodic_noise_Callback(hObject, eventdata, handles)
 if (get(hObject,'Value') == get(hObject,'Max'))
 
 
+    removeNoise(hObject,handles);
     % Convert the image to grayscale if it isn't already
     if ndims(handles.image_2) == 3
         gray_img = rgb2gray(handles.image_2);
@@ -532,7 +583,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     % Convert the noisy image back to uint8
     noisy_img = im2uint8(noisy_img);
 
-
+    % set the applied noise image to working image
     set(handles.axes2,'Units','pixels');
     resizePos2 = get(handles.axes2,'Position');
     handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
@@ -544,5 +595,6 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
         
+    handles.noise = 4;
     guidata(hObject, handles);
 end
