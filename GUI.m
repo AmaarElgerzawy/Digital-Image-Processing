@@ -262,6 +262,19 @@ function smoothing_function_Callback(hObject, eventdata, handles)
 % hObject    handle to smoothing_function (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 = imgaussfilt(handles.image_2,2);
+    
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
 
 % --- Executes on button press in sharpening_function.
 function sharpening_function_Callback(hObject, eventdata, handles)
