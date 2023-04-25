@@ -93,7 +93,12 @@ function bw_convert_Callback(hObject, eventdata, handles)
 % hObject    handle to bw_convert (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_2 = imbinarize(handles.image_2);
+    if ndims(handles.image_2) == 3
+        handles.image_2 = imbinarize(rgb2gray(handles.image_2));
+    else
+        handles.image_2 = imbinarize(handles.image_2);
+    end
+    
 
     set(handles.axes2,'Units','pixels');
     resizePos2 = get(handles.axes2,'Position');
@@ -116,14 +121,12 @@ function rg_convert_Callback(hObject, eventdata, handles)
 
     % Convert the image to grayscale if it isn't already
     if ndims(handles.image_2) == 3
-        myGrayImage = rgb2gray(handles.image_2);
-    else
-        myGrayImage = handles.image_2;
+        handles.image_2 = rgb2gray(handles.image_2);
     end
         
     set(handles.axes2,'Units','pixels');
     resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(myGrayImage, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
