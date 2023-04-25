@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 25-Apr-2023 17:03:58
+% Last Modified by GUIDE v2.5 25-Apr-2023 17:21:42
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -263,13 +263,12 @@ function smoothing_function_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --- Executes on button press in sharpening_function.
 function sharpening_function_Callback(hObject, eventdata, handles)
 % hObject    handle to sharpening_function (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_2 = imsharpen(handles.image_2);
+    handles.image_2 = imsharpen(handles.image_2,'Radius',2,'Amount',1);
     
     set(handles.axes2,'Units','pixels');
     resizePos2 = get(handles.axes2,'Position');
@@ -360,10 +359,6 @@ function mean_basic_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of mean_basic
-
-
-
-
 
 
 % --- Executes on button press in pushbutton16.
@@ -465,9 +460,9 @@ function removeNoise(hObject,handles)
     guidata(hObject, handles);
     
 
-% --- Executes on button press in pushbutton17.
-function pushbutton17_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton17 (see GCBO)
+% --- Executes on button press in resize_btn.
+function resize_btn_Callback(hObject, eventdata, handles)
+% hObject    handle to resize_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     
@@ -631,3 +626,49 @@ function pushbutton21_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     removeNoise(hObject,handles)
+
+
+
+function imagex_x_Callback(hObject, eventdata, handles)
+% hObject    handle to imagex_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of imagex_x as text
+%        str2double(get(hObject,'String')) returns contents of imagex_x as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function imagex_x_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to imagex_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function image_y_Callback(hObject, eventdata, handles)
+% hObject    handle to image_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of image_y as text
+%        str2double(get(hObject,'String')) returns contents of image_y as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function image_y_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to image_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
