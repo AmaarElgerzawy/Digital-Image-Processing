@@ -68,7 +68,6 @@ handles.noise = 0;
 handles.image_hist_1 = [];
 handles.image_hist_2 = [];
 
-
 % Update handles structure
 guidata(hObject, handles);
 
@@ -141,18 +140,15 @@ function upload_start_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.image_path = imgetfile;
 %     % Convert the image to grayscale if it isn't already
-myImage = imread(handles.image_path);
+handles.image_1 = imread(handles.image_path);
+handles.image_2 = handles.image_1;
 
 set(handles.axes1,'Units','pixels');
-resizePos1 = get(handles.axes1,'Position');
-handles.image_1 = imresize(myImage, [resizePos1(3) resizePos1(3)]);
 axes(handles.axes1);
 imshow(handles.image_1);
 set(handles.axes1,'Units','normalized');
 
 set(handles.axes2,'Units','pixels');
-resizePos2 = get(handles.axes2,'Position');
-handles.image_2 = imresize(myImage, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes2);
 imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
@@ -321,7 +317,41 @@ function brigthness_Callback(hObject, eventdata, handles)
 % hObject    handle to brigthness (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    val=get(hObject, 'value')*255;
+    [m, n]=size(handles.image_2);
+    %to bright to image add for example 55 for each pixel
+    if val > handles.lastVal && val > 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)+val <= 255    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)+val;
+             end
+           end
+        end
+    end
+    if val < handles.lastVal && val < 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)-val >= 0        %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)+handles.lastVal;
+             end
+           end
+        end
+    end
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    handles.lastVal = val;
+    
+    guidata(hObject, handles);
+    
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
@@ -379,7 +409,7 @@ function pushbutton16_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton16 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    
 
 
 % --- Executes on selection change in popupmenu2.
@@ -391,6 +421,30 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu2
 
+    hmask=fspecial('sobel');
+    vmask=hmask';
+    
+    val = get(hObject,'Value');
+    if val == 1
+        handles.image_2 = imfilter(handles.image_2,hmask,'replicate');
+    elseif val == 2
+        handles.image_2 = imfilter(handles.image_2,vmask,'replicate');
+    elseif val == 3
+        b_h=imfilter(handles.image_2,hmask,'replicate');
+        b_v=imfilter(handles.image_2,vmask,'replicate');
+        handles.image_2=b_h+b_v;
+    end
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu2_CreateFcn(hObject, eventdata, handles)
@@ -478,7 +532,17 @@ function resize_btn_Callback(hObject, eventdata, handles)
 % hObject    handle to resize_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    set(handles.axes2,'Units','pixels');
+    resizePos2 = get(handles.axes2,'Position');
+    handles.image_2 = imresize(handles.image_2, 0.5);
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
 
 
 
