@@ -98,8 +98,6 @@ end
 
 
 set(handles.axes2,'Units','pixels');
-resizePos2 = get(handles.axes2,'Position');
-handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes2);
 imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
@@ -122,8 +120,6 @@ if ndims(handles.image_2) == 3
 end
 
 set(handles.axes2,'Units','pixels');
-resizePos2 = get(handles.axes2,'Position');
-handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes2);
 imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
@@ -170,8 +166,6 @@ function resetmain_start_Callback(hObject, eventdata, handles)
 handles.image_1 = imread(handles.image_path);
 
 set(handles.axes1,'Units','pixels');
-resizePos1 = get(handles.axes1,'Position');
-handles.image_1 = imresize(handles.image_1, [resizePos1(3) resizePos1(3)]);
 axes(handles.axes1);
 imshow(handles.image_1);
 set(handles.axes1,'Units','normalized');
@@ -190,8 +184,6 @@ function resetworking_start_Callback(hObject, eventdata, handles)
 handles.image_2 = handles.image_1;
 
 set(handles.axes2,'Units','pixels');
-resizePos2 = get(handles.axes2,'Position');
-handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes2);
 imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
@@ -218,8 +210,6 @@ equalized_values = uint8(255 * cdf(handles.image_2 + 1));
 handles.image_2 = reshape(equalized_values, size(handles.image_2));
 
 set(handles.axes2,'Units','pixels');
-resizePos2 = get(handles.axes2,'Position');
-handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes2);
 imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
@@ -242,8 +232,6 @@ stretched_Image = imadjust(handles.image_2, stretchlim(handles.image_2, [0.05, 0
 handles.image_2 = uint8(stretched_Image);
 
 set(handles.axes2,'Units','pixels');
-resizePos2 = get(handles.axes2,'Position');
-handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes2);
 imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
@@ -261,8 +249,6 @@ function smoothing_function_Callback(hObject, eventdata, handles)
     handles.image_2 = imgaussfilt(handles.image_2,2);
     
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
@@ -280,8 +266,6 @@ function sharpening_function_Callback(hObject, eventdata, handles)
 handles.image_2 = imsharpen(handles.image_2,"Radius",1);
 
 set(handles.axes2,'Units','pixels');
-resizePos2 = get(handles.axes2,'Position');
-handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes2);
 imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
@@ -300,8 +284,6 @@ function set_start_Callback(hObject, eventdata, handles)
 handles.image_1 = handles.image_2;
 
 set(handles.axes1,'Units','pixels');
-resizePos2 = get(handles.axes1,'Position');
-handles.image_1 = imresize(handles.image_1, [resizePos2(3) resizePos2(3)]);
 axes(handles.axes1);
 imshow(handles.image_1);
 set(handles.axes1,'Units','normalized');
@@ -339,8 +321,6 @@ function brigthness_Callback(hObject, eventdata, handles)
         end
     end
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
@@ -435,8 +415,6 @@ function popupmenu2_Callback(hObject, eventdata, handles)
         handles.image_2=b_h+b_v;
     end
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
@@ -532,17 +510,6 @@ function resize_btn_Callback(hObject, eventdata, handles)
 % hObject    handle to resize_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, 0.5);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-
-    guidata(hObject, handles);
 
 
 
@@ -562,8 +529,7 @@ if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
     
     
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
@@ -596,8 +562,7 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2
     
     
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
@@ -624,8 +589,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))&& handles.noise ~= 3
     noisy_img = imnoise(handles.image_2, 'speckle', noise_density);
     
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
@@ -679,8 +643,7 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
     
     % set the applied noise image to working image
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
