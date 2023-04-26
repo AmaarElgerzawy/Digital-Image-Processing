@@ -67,7 +67,7 @@ handles.image_2 = '';
 handles.noise = 0;
 handles.image_hist_1 = [];
 handles.image_hist_2 = [];
-
+handles.lastVal = 0;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -301,8 +301,16 @@ function brigthness_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
     val=get(hObject, 'value')*255;
     [m, n]=size(handles.image_2);
-    %to bright to image add for example 55 for each pixel
-    if val > handles.lastVal && val > 0
+    up = 0;down =0;
+    if val > handles.lastVal
+        up = 1;
+        down = 0;
+    elseif val < handles.lastVal
+        down = 1;
+        up = 0;
+    end
+    
+    if up == 1 && val > 0
         for i=1:m
            for j=1:n
              if handles.image_2(i,j)+val <= 255    %to make sure not to increase than 255
@@ -311,11 +319,31 @@ function brigthness_Callback(hObject, eventdata, handles)
            end
         end
     end
-    if val < handles.lastVal && val < 0
+    if down == 1 && val < 0
         for i=1:m
            for j=1:n
-             if handles.image_2(i,j)-val >= 0        %to make sure not to increase than 255
-               handles.image_2(i,j)=handles.image_2(i,j)+handles.lastVal;
+             if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)+val;
+             end
+           end
+        end
+    end
+    
+    if down == 1 && val > 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)-val;
+             end
+           end
+        end
+    end
+    
+    if up == 1 && val < 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)-val;
              end
            end
         end
