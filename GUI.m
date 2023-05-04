@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 04-May-2023 16:50:05
+% Last Modified by GUIDE v2.5 04-May-2023 17:10:11
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -872,19 +872,36 @@ function alpha_spatial_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of alpha_spatial
 
 
-% --- Executes on selection change in popupmenu3.
-function popupmenu3_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu3 (see GCBO)
+% --- Executes on selection change in resize_menu.
+function resize_menu_Callback(hObject, eventdata, handles)
+% hObject    handle to resize_menu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    standerd_image_size = [[1;1],[3;2],[4;3],[16;9],[5;4],[1;4],[1;2],[2;1],[3;1]];
+    val = get(hObject,'Value');
+    image_size = size(handles.image_2);
+    
+    target = standerd_image_size(:,val);
+    ratio = target(1)/target(2);
+    
+    handles.image_2 = imresize(handles.image_2, [image_size(1)*ratio, image_size(2)]);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu3 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu3
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+    
+% Hints: contents = cellstr(get(hObject,'String')) returns resize_menu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from resize_menu
 
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu3 (see GCBO)
+function resize_menu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to resize_menu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
