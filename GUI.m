@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 25-Apr-2023 17:21:42
+% Last Modified by GUIDE v2.5 04-May-2023 15:14:12
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -315,6 +315,8 @@ function brigthness_Callback(hObject, eventdata, handles)
            for j=1:n
              if handles.image_2(i,j)+val <= 255    %to make sure not to increase than 255
                handles.image_2(i,j)=handles.image_2(i,j)+val;
+             else
+                 handles.image_2(i,j)=255;
              end
            end
         end
@@ -324,6 +326,8 @@ function brigthness_Callback(hObject, eventdata, handles)
            for j=1:n
              if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
                handles.image_2(i,j)=handles.image_2(i,j)+val;
+             else
+                 handles.image_2(i,j)=0;
              end
            end
         end
@@ -334,6 +338,8 @@ function brigthness_Callback(hObject, eventdata, handles)
            for j=1:n
              if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
                handles.image_2(i,j)=handles.image_2(i,j)-val;
+             else
+                 handles.image_2(i,j)=0;
              end
            end
         end
@@ -344,6 +350,8 @@ function brigthness_Callback(hObject, eventdata, handles)
            for j=1:n
              if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
                handles.image_2(i,j)=handles.image_2(i,j)-val;
+             else
+                 handles.image_2(i,j)=255;
              end
            end
         end
@@ -737,3 +745,12 @@ function image_y_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in geometric_spatial.
+function geometric_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to geometric_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    disp("Hello");
+% Hint: get(hObject,'Value') returns toggle state of geometric_spatial
