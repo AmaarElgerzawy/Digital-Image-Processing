@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 04-May-2023 16:05:10
+% Last Modified by GUIDE v2.5 04-May-2023 16:20:44
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -822,3 +822,26 @@ function harmonic_spatial_Callback(hObject, eventdata, handles)
 
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of harmonic_spatial
+
+
+% --- Executes on button press in Contraharmonic_spatial.
+function Contraharmonic_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to Contraharmonic_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    Ord = 1;
+    Kr = 3;
+    Kc = 3;
+    Img=im2double(handles.image_2);
+    handles.image_2=imfilter(Img.^(Ord+1), ones(Kr, Kc), 'replicate')./imfilter(Img.^(Ord), ones(Kr,Kc), 'replicate');
+
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of Contraharmonic_spatial
