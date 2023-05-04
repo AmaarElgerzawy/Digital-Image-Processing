@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 04-May-2023 15:14:12
+% Last Modified by GUIDE v2.5 04-May-2023 16:05:10
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -74,7 +74,6 @@ guidata(hObject, handles);
 % UIWAIT makes GUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-
 % --- Outputs from this function are returned to the command line.
 function varargout = GUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -106,7 +105,6 @@ set(handles.axes2,'Units','normalized');
 stem(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
-
 
 % --- Executes on button press in rg_convert.
 function rg_convert_Callback(hObject, eventdata, handles)
@@ -389,7 +387,16 @@ function min_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to min_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 = minimum_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of min_basic
 
 
@@ -398,7 +405,16 @@ function max_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to max_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 =  maximum_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of max_basic
 
 
@@ -407,7 +423,16 @@ function miden_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to miden_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 =   median_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of miden_basic
 
 
@@ -416,7 +441,16 @@ function mean_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to mean_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 =   mean_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of mean_basic
 
 
@@ -752,5 +786,39 @@ function geometric_spatial_Callback(hObject, eventdata, handles)
 % hObject    handle to geometric_spatial (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    disp("Hello");
+    Kr = 3;
+    Kc = 3;
+    g=im2double(handles.image_2);
+    handles.image_2 = exp(imfilter(log(g), ones(Kr, Kc), 'replicate')).^(1/(Kr*Kc));
+    
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of geometric_spatial
+
+% --- Executes on button press in harmonic_spatial.
+function harmonic_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to harmonic_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    Kr = 3;
+    Kc = 3;
+    handles.image_2 = im2double(handles.image_2);
+    handles.image_2 = (Kr*Kc)./imfilter(1./(handles.image_2+eps), ones(Kr, Kc), 'replicate');
+
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of harmonic_spatial
