@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 04-May-2023 16:20:44
+% Last Modified by GUIDE v2.5 04-May-2023 16:25:52
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -845,3 +845,28 @@ function Contraharmonic_spatial_Callback(hObject, eventdata, handles)
 
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of Contraharmonic_spatial
+
+
+% --- Executes on button press in alpha_spatial.
+function alpha_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to alpha_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Convert the image to double precision
+    img = im2double(handles.image_2);
+    % Define the filter window size
+    window_size = 3;
+    % Define the alpha value
+    alpha = 0.2;
+    % Apply the alpha-trimmed mean filter
+    handles.image_2 = alpha_trimmed_mean_filter(img, window_size, alpha);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of alpha_spatial
