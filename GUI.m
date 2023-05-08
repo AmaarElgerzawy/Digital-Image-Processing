@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 04-May-2023 17:10:11
+% Last Modified by GUIDE v2.5 08-May-2023 10:29:52
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -180,7 +180,7 @@ function resetworking_start_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.image_2 = handles.image_1;
-
+handles.noise = 0;
 set(handles.axes2,'Units','pixels');
 axes(handles.axes2);
 imshow(handles.image_2);
@@ -387,6 +387,7 @@ function min_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to min_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if handles.noise == 1 || handles.noise == 3
     handles.image_2 = minimum_filter(handles.image_2, 3);
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
@@ -397,6 +398,7 @@ function min_basic_Callback(hObject, eventdata, handles)
     stem(handles.axes4,binLocations,counts);
     
     guidata(hObject, handles);
+end
 % Hint: get(hObject,'Value') returns toggle state of min_basic
 
 
@@ -405,6 +407,7 @@ function max_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to max_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if handles.noise == 2 || handles.noise == 3
     handles.image_2 =  maximum_filter(handles.image_2, 3);
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
@@ -415,6 +418,7 @@ function max_basic_Callback(hObject, eventdata, handles)
     stem(handles.axes4,binLocations,counts);
     
     guidata(hObject, handles);
+end
 % Hint: get(hObject,'Value') returns toggle state of max_basic
 
 
@@ -509,58 +513,83 @@ end
 
 function removeNoise(hObject,handles)
 
-   % Convert the image to grayscale if it isn't already
-    if ndims(handles.image_2) == 3
-        gray_img = rgb2gray(handles.image_2);
-    else
-        gray_img = handles.image_2;
-    end
+   if handles.noise == 1
+       handles.image_2 = minimum_filter(handles.image_2, 3);
 
-    if handles.noise == 1
+   elseif handles.noise == 2
+        handles.image_2 =  maximum_filter(handles.image_2, 3);
+   elseif handles.noise == 3
+        % Convert the image to grayscale if it isn't already
+        if ndims(handles.image_2) == 3
+            gray_img = rgb2gray(handles.image_2);
+        else
+            gray_img = handles.image_2;
+        end
+
         %apply salt&pepper noise remove
 
         % Apply a median filter to the image
-        filter_size = 3; % Adjust this value to change the size of the filter
-        handles.image_2 = medfilt2(gray_img, [filter_size filter_size]);
-
-    elseif handles.noise == 3
-        
-        % Apply a Gaussian filter to the image
-        gaussianFilter = fspecial('gaussian', [3 3], 2);
-        filteredImage = imfilter(gray_img, gaussianFilter);
+        handles.image_2 =   median_filter(handles.image_2, 3);
 
     
-    elseif handles.noise == 2
-
-        handles.image_2 = imrest(gray_img,'hmean',3,3)
-        
-
     elseif handles.noise == 4
-        %apply periodic noise remove
-        % Compute the Fourier transform of the image
-        ftImage = fft2(double(gray_img));
+        % Remove Gaussian noise
+        Kr = 3;
+        Kc = 3;
+        handles.image_2 = im2double(handles.image_2);
+        handles.image_2 = (Kr*Kc)./imfilter(1./(handles.image_2+eps), ones(Kr, Kc), 'replicate');
         
-        % Create a notch filter to remove the periodic noise
-        D0 = 50; % distance from the origin to the notch filter
-        w = 5; % width of the notch filter
-        h = size(gray_img, 1);
-        w1 = round(h/2) - w/2; % location of the first notch filter
-        w2 = round(h/2) + w/2; % location of the second notch filter
-        notchFilter = ones(h);
-        notchFilter(w1:w2, round(h/2) - D0:round(h/2) + D0) = 0;
-        notchFilter(round(h/2) - D0:round(h/2) + D0, w1:w2) = 0;
+    elseif handles.noise == 5
+        % Convert the image to grayscale if it isn't already
+        if ndims(handles.image_2) == 3
+            gray_img = rgb2gray(handles.image_2);
+        else
+            gray_img = handles.image_2;
+        end
+
+        % Apply a median filter to the image
+        handles.image_2 =   medfilt2(gray_img, [3 3]);
         
-        % Apply the notch filter to the Fourier transform of the image
-        filteredFtImage = ftImage .* notchFilter;
+
+
+    elseif handles.noise == 6
+
+        % Convert the image to grayscale if it isn't already
+        if ndims(handles.image_2) == 3
+            gray_img = rgb2gray(handles.image_2);
+        else
+            gray_img = handles.image_2;
+        end
         
-        % Compute the inverse Fourier transform to get the filtered image
-        handles.image_2 = real(ifft2(filteredFtImage));
-    end
+        noisy_img = handles.image_2;
+        
+        % Compute the Fourier transform of the noisy image
+        fft_img = fft2(double(noisy_img));
+        
+        % Define the frequency of the noise to be removed
+        freq = 0.05; % Noise frequency (cycles per pixel)
+        
+        % Create a meshgrid with the same size as the image
+        [rows, cols] = size(noisy_img);
+        [X, Y] = meshgrid(1:cols, 1:rows);
+        
+        % Create a mask to identify the frequency band to be removed
+        mask = ones(rows, cols);
+        mask(abs(X-cols/2+1) <= freq*cols & abs(Y-rows/2+1) <= freq*rows) = 0;
+        
+        % Apply the notch filter to suppress the noise frequency
+        fft_img = fft_img .* mask;
+        
+        % Compute the inverse Fourier transform to obtain the filtered image
+        handles.image_2 = uint8(real(ifft2(fft_img)));
+  
+   end
+
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts)
-    handles.noise = 0  
+    handles.noise = 0  ;
 
     guidata(hObject, handles);
     
@@ -579,7 +608,7 @@ function sp_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of sp_noise
-if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
+if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 3)
     removeNoise(hObject,handles);
     % Add salt and pepper noise
     noise_density = 0.05; % Adjust this value to change the density of noise
@@ -597,7 +626,7 @@ if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
     
-    handles.noise = 1;
+    handles.noise = 3;
     guidata(hObject, handles);
 end
 
@@ -610,7 +639,7 @@ function gaussian_noise_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of gaussian_noise
 %
-if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2
+if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
     
     removeNoise(hObject,handles);
     
@@ -630,7 +659,7 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
     
-    handles.noise = 2;
+    handles.noise = 4;
     guidata(hObject, handles);
 end
 
@@ -641,7 +670,7 @@ function speckle_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of speckle_noise
-if (get(hObject,'Value') == get(hObject,'Max'))&& handles.noise ~= 3
+if (get(hObject,'Value') == get(hObject,'Max'))&& handles.noise ~= 5
     removeNoise(hObject,handles);
     % Add speckle noise
     noise_density = 0.05; % Adjust this value to change the density of noise
@@ -657,7 +686,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))&& handles.noise ~= 3
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
     
-    handles.noise = 3;
+    handles.noise = 5;
     guidata(hObject, handles);
 end
 
@@ -668,7 +697,7 @@ function periodic_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of periodic_noise
-if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
+if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 6
     
     
     
@@ -680,25 +709,20 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
         gray_img = handles.image_2;
     end
     
-    % Define the size of the noise pattern
-    pattern_size = 20; % Adjust this value to change the size of the pattern
+    % Create a meshgrid with the same size as the image
+    [X, Y] = meshgrid(1:size(handles.image_2, 2), 1:size(handles.image_2, 1));
     
-    % Create a grid of x and y coordinates
-    [X, Y] = meshgrid(1:size(gray_img, 2), 1:size(gray_img, 1));
+    % Set the frequency and amplitude of the sinusoidal signal
+    freq = 0.02;
+    amp = 50;
     
-    % Generate a sin wave with a random frequency and amplitude
-    freq = randi([1 10], 1);
-    amp = randi([10 50], 1);
-    noise = amp*sin(2*pi*freq*(X/pattern_size) + rand);
+    % Create the sinusoidal signal
+    noise = amp * sin(2 * pi * freq * X + 2 * pi * freq * Y);
     
-    % Add the noise to the grayscale image
-    noisy_img = im2double(gray_img) + noise;
+    % Add the noise to the image
+    noisy_img = handles.image_2 + uint8(noise);
     
-    % Normalize the noisy image to the range [0, 1]
-    noisy_img = (noisy_img - min(noisy_img(:))) / (max(noisy_img(:)) - min(noisy_img(:)));
-    
-    % Convert the noisy image back to uint8
-    noisy_img = im2uint8(noisy_img);
+
     
     % set the applied noise image to working image
     set(handles.axes2,'Units','pixels');
@@ -711,7 +735,7 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
     
-    handles.noise = 4;
+    handles.noise = 6;
     guidata(hObject, handles);
 end
 
@@ -898,4 +922,75 @@ function resize_menu_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in radiobutton23.
+function radiobutton23_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton23 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton23
+if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
+    removeNoise(hObject,handles);
+    % Add salt noise
+  %  noisy_img = noise(handles.image_2, 'salt & pepper', 0,0.05);
+    
+    % Create a binary mask with random salt noise locations
+    noise_mask = rand(size(handles.image_2)) < 0.05;
+    
+    % Add salt noise to the image using the mask
+    noisy_img = handles.image_2;
+    noisy_img(noise_mask) = 255;
+    
+    
+    set(handles.axes2,'Units','pixels');
+    handles.image_2 = noisy_img;
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    handles.noise = 1;
+    guidata(hObject, handles);
+end
+
+
+
+% --- Executes on button press in radiobutton22.
+function radiobutton22_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton22
+if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2)
+    removeNoise(hObject,handles);
+    % Add salt noise
+  %  noisy_img = noise(handles.image_2, 'salt & pepper', 0,0.05);
+    
+    % Create a binary mask with random salt noise locations
+    noise_mask = rand(size(handles.image_2)) < 0.05;
+    
+    % Add salt pepper to the image using the mask
+    noisy_img = handles.image_2;
+    noisy_img(noise_mask) = 0;
+    
+    
+    set(handles.axes2,'Units','pixels');
+    handles.image_2 = noisy_img;
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+    
+    
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    handles.noise = 2;
+    guidata(hObject, handles);
 end
