@@ -65,8 +65,6 @@ handles.image_path = '';
 handles.image_1 = '';
 handles.image_2 = '';
 handles.noise = 0;
-handles.image_hist_1 = [];
-handles.image_hist_2 = [];
 handles.lastVal = 0;
 % Update handles structure
 guidata(hObject, handles);
@@ -102,7 +100,7 @@ imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
+bar(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
 
@@ -123,7 +121,7 @@ imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
+bar(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
 
@@ -148,10 +146,10 @@ imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_1);
-stem(handles.axes3,binLocations,counts);
+bar(handles.axes3,binLocations,counts);
 
 [counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
+bar(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
 
@@ -169,10 +167,9 @@ imshow(handles.image_1);
 set(handles.axes1,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_1);
-stem(handles.axes3,binLocations,counts);
+bar(handles.axes3,binLocations,counts);
 
 guidata(hObject, handles);
-
 
 % --- Executes on button press in resetworking_start.
 function resetworking_start_Callback(hObject, eventdata, handles)
@@ -187,10 +184,9 @@ imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
+bar(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
-
 
 % --- Executes on button press in histrogram_function.
 function histrogram_function_Callback(hObject, eventdata, handles)
@@ -213,7 +209,7 @@ imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
+bar(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
 
@@ -235,7 +231,7 @@ imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
+bar(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
 
@@ -252,7 +248,7 @@ function smoothing_function_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
 
     guidata(hObject, handles);
 
@@ -269,7 +265,7 @@ imshow(handles.image_2);
 set(handles.axes2,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
+bar(handles.axes4,binLocations,counts);
 
 guidata(hObject, handles);
 
@@ -287,7 +283,7 @@ imshow(handles.image_1);
 set(handles.axes1,'Units','normalized');
 
 [counts,binLocations] = imhist(handles.image_1);
-stem(handles.axes3,binLocations,counts);
+bar(handles.axes3,binLocations,counts);
 
 guidata(hObject, handles);
 
@@ -360,7 +356,7 @@ function brigthness_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     handles.lastVal = val;
     
@@ -387,7 +383,7 @@ function min_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to min_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if handles.noise == 1 || handles.noise == 3
+if get(hObject,'Value') == 1
     handles.image_2 = minimum_filter(handles.image_2, 3);
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
@@ -395,9 +391,9 @@ if handles.noise == 1 || handles.noise == 3
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-    
-    guidata(hObject, handles);
+    bar(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);    
 end
 % Hint: get(hObject,'Value') returns toggle state of min_basic
 
@@ -407,7 +403,7 @@ function max_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to max_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if handles.noise == 2 || handles.noise == 3
+if get(hObject,'Value') == 1
     handles.image_2 =  maximum_filter(handles.image_2, 3);
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
@@ -415,7 +411,7 @@ if handles.noise == 2 || handles.noise == 3
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     guidata(hObject, handles);
 end
@@ -427,6 +423,7 @@ function miden_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to miden_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value') == 1
     handles.image_2 =   median_filter(handles.image_2, 3);
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
@@ -434,17 +431,18 @@ function miden_basic_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     guidata(hObject, handles);
+end
 % Hint: get(hObject,'Value') returns toggle state of miden_basic
-
 
 % --- Executes on button press in mean_basic.
 function mean_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to mean_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value') == 1
     handles.image_2 =   mean_filter(handles.image_2, 3);
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
@@ -452,9 +450,10 @@ function mean_basic_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     guidata(hObject, handles);
+end
 % Hint: get(hObject,'Value') returns toggle state of mean_basic
 
 
@@ -464,8 +463,6 @@ function pushbutton16_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     
-
-
 % --- Executes on selection change in popupmenu2.
 function popupmenu2_Callback(hObject, eventdata, handles)
 % hObject    handle to popupmenu2 (see GCBO)
@@ -494,7 +491,7 @@ function popupmenu2_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
 
     guidata(hObject, handles);
 
@@ -509,7 +506,6 @@ function popupmenu2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 function removeNoise(hObject,handles)
 
@@ -588,7 +584,7 @@ function removeNoise(hObject,handles)
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts)
+    bar(handles.axes4,binLocations,counts)
     handles.noise = 0  ;
 
     guidata(hObject, handles);
@@ -598,7 +594,6 @@ function resize_btn_Callback(hObject, eventdata, handles)
 % hObject    handle to resize_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 
 % --- Executes on button press in sp_noise.
@@ -624,7 +619,7 @@ if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 3)
     
     
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     handles.noise = 3;
     guidata(hObject, handles);
@@ -640,14 +635,12 @@ function gaussian_noise_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of gaussian_noise
 %
 if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
-    
     removeNoise(hObject,handles);
     
     % Add Gaussian noise
     noise_mean = 0; % Mean of the noise
     noise_var = 0.01; % Variance of the noise
     noisy_img = imnoise(handles.image_2, 'gaussian', noise_mean, noise_var);
-    
     
     set(handles.axes2,'Units','pixels');
     handles.image_2 = noisy_img;
@@ -657,7 +650,7 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
     
     
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     handles.noise = 4;
     guidata(hObject, handles);
@@ -684,7 +677,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))&& handles.noise ~= 5
     
     
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     handles.noise = 5;
     guidata(hObject, handles);
@@ -733,7 +726,7 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 6
     
     
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     handles.noise = 6;
     guidata(hObject, handles);
@@ -810,7 +803,7 @@ function geometric_spatial_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
 
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of geometric_spatial
@@ -831,7 +824,7 @@ function harmonic_spatial_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
 
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of harmonic_spatial
@@ -854,7 +847,7 @@ function Contraharmonic_spatial_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
 
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of Contraharmonic_spatial
@@ -879,7 +872,7 @@ function alpha_spatial_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
 
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of alpha_spatial
@@ -904,13 +897,12 @@ function resize_menu_Callback(hObject, eventdata, handles)
     set(handles.axes2,'Units','normalized');
 
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
 
     guidata(hObject, handles);
     
 % Hints: contents = cellstr(get(hObject,'String')) returns resize_menu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from resize_menu
-
 
 % --- Executes during object creation, after setting all properties.
 function resize_menu_CreateFcn(hObject, eventdata, handles)
@@ -935,7 +927,7 @@ function radiobutton23_Callback(hObject, eventdata, handles)
 if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
     removeNoise(hObject,handles);
     % Add salt noise
-  %  noisy_img = noise(handles.image_2, 'salt & pepper', 0,0.05);
+    %  noisy_img = noise(handles.image_2, 'salt & pepper', 0,0.05);
     
     % Create a binary mask with random salt noise locations
     noise_mask = rand(size(handles.image_2)) < 0.05;
@@ -944,21 +936,18 @@ if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
     noisy_img = handles.image_2;
     noisy_img(noise_mask) = 255;
     
-    
     set(handles.axes2,'Units','pixels');
     handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
     
-    
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     handles.noise = 1;
     guidata(hObject, handles);
 end
-
 
 
 % --- Executes on button press in radiobutton22.
@@ -989,7 +978,7 @@ if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2)
     
     
     [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
+    bar(handles.axes4,binLocations,counts);
     
     handles.noise = 2;
     guidata(hObject, handles);
