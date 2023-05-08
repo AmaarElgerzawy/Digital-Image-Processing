@@ -181,6 +181,8 @@ function resetworking_start_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.image_2 = handles.image_1;
 handles.noise = 0;
+
+
 set(handles.axes2,'Units','pixels');
 axes(handles.axes2);
 imshow(handles.image_2);
@@ -388,7 +390,9 @@ function min_basic_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 if handles.noise == 1 || handles.noise == 3
+
     handles.image_2 = minimum_filter(handles.image_2, 3);
+
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(handles.image_2);
@@ -398,6 +402,7 @@ if handles.noise == 1 || handles.noise == 3
     stem(handles.axes4,binLocations,counts);
     
     guidata(hObject, handles);
+    
 end
 % Hint: get(hObject,'Value') returns toggle state of min_basic
 
@@ -418,6 +423,7 @@ if handles.noise == 2 || handles.noise == 3
     stem(handles.axes4,binLocations,counts);
     
     guidata(hObject, handles);
+
 end
 % Hint: get(hObject,'Value') returns toggle state of max_basic
 
@@ -820,6 +826,8 @@ function harmonic_spatial_Callback(hObject, eventdata, handles)
 % hObject    handle to harmonic_spatial (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if handles.noise == 4
+     
     Kr = 3;
     Kc = 3;
     handles.image_2 = im2double(handles.image_2);
@@ -833,15 +841,18 @@ function harmonic_spatial_Callback(hObject, eventdata, handles)
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
 
+    handles.noise = 0;
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of harmonic_spatial
-
+end
 
 % --- Executes on button press in Contraharmonic_spatial.
+
 function Contraharmonic_spatial_Callback(hObject, eventdata, handles)
 % hObject    handle to Contraharmonic_spatial (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if handles.noise == 2
     Ord = 1;
     Kr = 3;
     Kc = 3;
@@ -855,11 +866,11 @@ function Contraharmonic_spatial_Callback(hObject, eventdata, handles)
 
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
-
+    handles.noise = 0;
     guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of Contraharmonic_spatial
 
-
+end 
 % --- Executes on button press in alpha_spatial.
 function alpha_spatial_Callback(hObject, eventdata, handles)
 % hObject    handle to alpha_spatial (see GCBO)
@@ -933,7 +944,7 @@ function radiobutton23_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton23
 if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
-    removeNoise(hObject,handles);
+    
     % Add salt noise
   %  noisy_img = noise(handles.image_2, 'salt & pepper', 0,0.05);
     
@@ -969,7 +980,7 @@ function radiobutton22_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton22
 if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2)
-    removeNoise(hObject,handles);
+
     % Add salt noise
   %  noisy_img = noise(handles.image_2, 'salt & pepper', 0,0.05);
     
