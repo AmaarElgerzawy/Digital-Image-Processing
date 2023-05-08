@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 25-Apr-2023 00:49:30
+% Last Modified by GUIDE v2.5 04-May-2023 17:10:11
 
 % Begin initialization code - DO NOT EDIT
 % Get handles to all the axes in the GUIDE interface
@@ -34,11 +34,11 @@ for i = 1:length(axes_handles)
 end
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @GUI_OpeningFcn, ...
-                   'gui_OutputFcn',  @GUI_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @GUI_OpeningFcn, ...
+    'gui_OutputFcn',  @GUI_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -49,8 +49,6 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
-
-
 
 % --- Executes just before GUI is made visible.
 function GUI_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -69,17 +67,15 @@ handles.image_2 = '';
 handles.noise = 0;
 handles.image_hist_1 = [];
 handles.image_hist_2 = [];
-
-
+handles.lastVal = 0;
 % Update handles structure
 guidata(hObject, handles);
 
 % UIWAIT makes GUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-
 % --- Outputs from this function are returned to the command line.
-function varargout = GUI_OutputFcn(hObject, eventdata, handles) 
+function varargout = GUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -93,20 +89,22 @@ function bw_convert_Callback(hObject, eventdata, handles)
 % hObject    handle to bw_convert (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if ndims(handles.image_2) == 3
+    handles.image_2 = imbinarize(rgb2gray(handles.image_2));
+else
     handles.image_2 = imbinarize(handles.image_2);
+end
 
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-    
-    guidata(hObject, handles);
 
+set(handles.axes2,'Units','pixels');
+axes(handles.axes2);
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
+
+guidata(hObject, handles);
 
 % --- Executes on button press in rg_convert.
 function rg_convert_Callback(hObject, eventdata, handles)
@@ -114,55 +112,48 @@ function rg_convert_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    % Convert the image to grayscale if it isn't already
-    if ndims(handles.image_2) == 3
-        myGrayImage = rgb2gray(handles.image_2);
-    else
-        myGrayImage = handles.image_2;
-    end
-        
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(myGrayImage, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-        
-    guidata(hObject, handles);
+% Convert the image to grayscale if it isn't already
+if ndims(handles.image_2) == 3
+    handles.image_2 = rgb2gray(handles.image_2);
+end
+
+set(handles.axes2,'Units','pixels');
+axes(handles.axes2);
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
+
+guidata(hObject, handles);
 
 % --- Executes on button press in upload_start.
 function upload_start_Callback(hObject, eventdata, handles)
 % hObject    handle to upload_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_path = imgetfile;
-    %     % Convert the image to grayscale if it isn't already
-    myImage = imread(handles.image_path);
-    
-    set(handles.axes1,'Units','pixels');
-    resizePos1 = get(handles.axes1,'Position');
-    handles.image_1 = imresize(myImage, [resizePos1(3) resizePos1(3)]);
-    axes(handles.axes1);
-    imshow(handles.image_1);
-    set(handles.axes1,'Units','normalized');
-    
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(myImage, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_1);
-    stem(handles.axes3,binLocations,counts);
-    
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-    
-    guidata(hObject, handles);
+handles.image_path = imgetfile;
+%     % Convert the image to grayscale if it isn't already
+handles.image_1 = imread(handles.image_path);
+handles.image_2 = handles.image_1;
+
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+imshow(handles.image_1);
+set(handles.axes1,'Units','normalized');
+
+set(handles.axes2,'Units','pixels');
+axes(handles.axes2);
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_1);
+stem(handles.axes3,binLocations,counts);
+
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
+
+guidata(hObject, handles);
 
 
 % --- Executes on button press in resetmain_start.
@@ -170,61 +161,35 @@ function resetmain_start_Callback(hObject, eventdata, handles)
 % hObject    handle to resetmain_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_1 = imread(handles.image_path);
-    
-    set(handles.axes1,'Units','pixels');
-    resizePos1 = get(handles.axes1,'Position');
-    handles.image_1 = imresize(handles.image_1, [resizePos1(3) resizePos1(3)]);
-    axes(handles.axes1);
-    imshow(handles.image_1);
-    set(handles.axes1,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_1);
-    stem(handles.axes3,binLocations,counts);
-    
-    guidata(hObject, handles);
-    
+handles.image_1 = imread(handles.image_path);
+
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+imshow(handles.image_1);
+set(handles.axes1,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_1);
+stem(handles.axes3,binLocations,counts);
+
+guidata(hObject, handles);
+
 
 % --- Executes on button press in resetworking_start.
 function resetworking_start_Callback(hObject, eventdata, handles)
 % hObject    handle to resetworking_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_2 = handles.image_1;
-    
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-    
-    guidata(hObject, handles);
-    
-    
-% --- Executes on slider movement.
-function slider1_Callback(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+handles.image_2 = handles.image_1;
 
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+set(handles.axes2,'Units','pixels');
+axes(handles.axes2);
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
 
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
 
-% --- Executes during object creation, after setting all properties.
-function slider1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
+guidata(hObject, handles);
 
 
 % --- Executes on button press in histrogram_function.
@@ -233,76 +198,80 @@ function histrogram_function_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    % Calculate the histogram of the grayscale image
-    histogram = imhist(handles.image_2);
-    % Calculate the cumulative distribution function (CDF) of the histogram
-    cdf = cumsum(histogram) / numel(handles.image_2);
-    % Calculate the equalized intensity values using the CDF
-    equalized_values = uint8(255 * cdf(handles.image_2 + 1));
-    % Create a new image with the equalized intensity values
-    handles.image_2 = reshape(equalized_values, size(handles.image_2));
-    
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-    
-    guidata(hObject, handles);
-    
+% Calculate the histogram of the grayscale image
+histogram = imhist(handles.image_2);
+% Calculate the cumulative distribution function (CDF) of the histogram
+cdf = cumsum(histogram) / numel(handles.image_2);
+% Calculate the equalized intensity values using the CDF
+equalized_values = uint8(255 * cdf(handles.image_2 + 1));
+% Create a new image with the equalized intensity values
+handles.image_2 = reshape(equalized_values, size(handles.image_2));
+
+set(handles.axes2,'Units','pixels');
+axes(handles.axes2);
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
+
+guidata(hObject, handles);
+
 % --- Executes on button press in contrast_function.
 function contrast_function_Callback(hObject, eventdata, handles)
 % hObject    handle to contrast_function (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    % Apply contrast stretching to the image
-    stretched_Image = imadjust(handles.image_2, stretchlim(handles.image_2, [0.05, 0.95]),[]);
+% Apply contrast stretching to the image
+stretched_Image = imadjust(handles.image_2, stretchlim(handles.image_2, [0.05, 0.95]),[]);
 
-    % Convert the image back to uint8 format
-    handles.image_2 = uint8(stretched_Image);
-    
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-        
-    guidata(hObject, handles);
+% Convert the image back to uint8 format
+handles.image_2 = uint8(stretched_Image);
+
+set(handles.axes2,'Units','pixels');
+axes(handles.axes2);
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
+
+guidata(hObject, handles);
 
 % --- Executes on button press in smoothing_function.
 function smoothing_function_Callback(hObject, eventdata, handles)
 % hObject    handle to smoothing_function (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 = imgaussfilt(handles.image_2,2);
+    
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
 
 % --- Executes on button press in sharpening_function.
 function sharpening_function_Callback(hObject, eventdata, handles)
 % hObject    handle to sharpening_function (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_2 = imsharpen(handles.image_2);
-    
-    set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(handles.image_2, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes2);
-    imshow(handles.image_2);
-    set(handles.axes2,'Units','normalized');
-    
-    [counts,binLocations] = imhist(handles.image_2);
-    stem(handles.axes4,binLocations,counts);
-        
-    guidata(hObject, handles);
+handles.image_2 = imsharpen(handles.image_2,"Radius",1);
+
+set(handles.axes2,'Units','pixels');
+axes(handles.axes2);
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
+
+guidata(hObject, handles);
 
 
 % --- Executes on button press in set_start.
@@ -310,56 +279,100 @@ function set_start_Callback(hObject, eventdata, handles)
 % hObject    handle to set_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.image_1 = handles.image_2;
+handles.image_1 = handles.image_2;
+
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+imshow(handles.image_1);
+set(handles.axes1,'Units','normalized');
+
+[counts,binLocations] = imhist(handles.image_1);
+stem(handles.axes3,binLocations,counts);
+
+guidata(hObject, handles);
+
+
+% --- Executes on slider movement.
+function brigthness_Callback(hObject, eventdata, handles)
+% hObject    handle to brigthness (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    val=get(hObject, 'value')*255;
+    [m, n]=size(handles.image_2);
+    up = 0;down =0;
+    if val > handles.lastVal
+        up = 1;
+        down = 0;
+    elseif val < handles.lastVal
+        down = 1;
+        up = 0;
+    end
     
-    set(handles.axes1,'Units','pixels');
-    resizePos2 = get(handles.axes1,'Position');
-    handles.image_1 = imresize(handles.image_1, [resizePos2(3) resizePos2(3)]);
-    axes(handles.axes1);
-    imshow(handles.image_1);
-    set(handles.axes1,'Units','normalized');
+    if up == 1 && val > 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)+val <= 255    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)+val;
+             else
+                 handles.image_2(i,j)=255;
+             end
+           end
+        end
+    end
+    if down == 1 && val < 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)+val;
+             else
+                 handles.image_2(i,j)=0;
+             end
+           end
+        end
+    end
     
-    [counts,binLocations] = imhist(handles.image_1);
-    stem(handles.axes3,binLocations,counts);
-        
+    if down == 1 && val > 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)-val;
+             else
+                 handles.image_2(i,j)=0;
+             end
+           end
+        end
+    end
+    
+    if up == 1 && val < 0
+        for i=1:m
+           for j=1:n
+             if handles.image_2(i,j)-val >= 0    %to make sure not to increase than 255
+               handles.image_2(i,j)=handles.image_2(i,j)-val;
+             else
+                 handles.image_2(i,j)=255;
+             end
+           end
+        end
+    end
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    handles.lastVal = val;
+    
     guidata(hObject, handles);
     
-
-% --- Executes on slider movement.
-function slider2_Callback(hObject, eventdata, handles)
-% hObject    handle to slider2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 
 % --- Executes during object creation, after setting all properties.
-function slider2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
-% --- Executes on slider movement.
-function slider3_Callback(hObject, eventdata, handles)
-% hObject    handle to slider3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
-function slider3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider3 (see GCBO)
+function brigthness_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to brigthness (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -374,7 +387,16 @@ function min_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to min_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 = minimum_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of min_basic
 
 
@@ -383,7 +405,16 @@ function max_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to max_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 =  maximum_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of max_basic
 
 
@@ -392,7 +423,16 @@ function miden_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to miden_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 =   median_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of miden_basic
 
 
@@ -401,12 +441,17 @@ function mean_basic_Callback(hObject, eventdata, handles)
 % hObject    handle to mean_basic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    handles.image_2 =   mean_filter(handles.image_2, 3);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
 
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+    
+    guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of mean_basic
-
-
-
-
 
 
 % --- Executes on button press in pushbutton16.
@@ -414,27 +459,7 @@ function pushbutton16_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton16 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-function edit1_Callback(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit1 as text
-%        str2double(get(hObject,'String')) returns contents of edit1 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+    
 
 
 % --- Executes on selection change in popupmenu2.
@@ -446,6 +471,28 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu2
 
+    hmask=fspecial('sobel');
+    vmask=hmask';
+    
+    val = get(hObject,'Value');
+    if val == 1
+        handles.image_2 = imfilter(handles.image_2,hmask,'replicate');
+    elseif val == 2
+        handles.image_2 = imfilter(handles.image_2,vmask,'replicate');
+    elseif val == 3
+        b_h=imfilter(handles.image_2,hmask,'replicate');
+        b_v=imfilter(handles.image_2,vmask,'replicate');
+        handles.image_2=b_h+b_v;
+    end
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu2_CreateFcn(hObject, eventdata, handles)
@@ -459,51 +506,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
-function edit3_Callback(hObject, eventdata, handles)
-% hObject    handle to edit3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit3 as text
-%        str2double(get(hObject,'String')) returns contents of edit3 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit4_Callback(hObject, eventdata, handles)
-% hObject    handle to edit4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit4 as text
-%        str2double(get(hObject,'String')) returns contents of edit4 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit4_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 function removeNoise(hObject,handles)
 
@@ -562,18 +564,68 @@ function removeNoise(hObject,handles)
 
     guidata(hObject, handles);
     
+    % Apply a median filter to the image
+    filter_size = 3; % Adjust this value to change the size of the filter
+    handles.image_2 = medfilt2(gray_img, [filter_size filter_size]);
+    
+elseif handles.noise == 2 || handles.noise == 3
+    %apply gaussian noise remove
+    % Convert the image to grayscale if it isn't already
+    if ndims(handles.image_2) == 3
+        gray_img = rgb2gray(handles.image_2);
+    else
+        gray_img = handles.image_2;
+    end
+    
+    % Apply a Gaussian filter to the image
+    gaussianFilter = fspecial('gaussian', [3 3], 2);
+    filteredImage = imfilter(gray_img, gaussianFilter);
+    
+    % Apply a median filter to the image
+    filter_size = 3; % Adjust this value to change the size of the filter
+    handles.image_2 = medfilt2(filteredImage, [filter_size filter_size]);
+    
+elseif handles.noise == 4
+    %apply periodic noise remove
+    
+    % Convert the image to grayscale if it isn't already
+    if ndims(handles.image_2) == 3
+        gray_img = rgb2gray(handles.image_2);
+    else
+        gray_img = handles.image_2;
+    end
+    % Compute the Fourier transform of the image
+    ftImage = fft2(double(gray_img));
+    
+    % Create a notch filter to remove the periodic noise
+    D0 = 50; % distance from the origin to the notch filter
+    w = 5; % width of the notch filter
+    h = size(gray_img, 1);
+    w1 = round(h/2) - w/2; % location of the first notch filter
+    w2 = round(h/2) + w/2; % location of the second notch filter
+    notchFilter = ones(h);
+    notchFilter(w1:w2, round(h/2) - D0:round(h/2) + D0) = 0;
+    notchFilter(round(h/2) - D0:round(h/2) + D0, w1:w2) = 0;
+    
+    % Apply the notch filter to the Fourier transform of the image
+    filteredFtImage = ftImage .* notchFilter;
+    
+    % Compute the inverse Fourier transform to get the filtered image
+    handles.image_2 = real(ifft2(filteredFtImage));
+end
+imshow(handles.image_2);
+set(handles.axes2,'Units','normalized');
+[counts,binLocations] = imhist(handles.image_2);
+stem(handles.axes4,binLocations,counts);
+handles.noise = 0;
+guidata(hObject, handles);
 
 
-
-% --- Executes on button press in pushbutton17.
-function pushbutton17_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton17 (see GCBO)
+% --- Executes on button press in resize_btn.
+function resize_btn_Callback(hObject, eventdata, handles)
+% hObject    handle to resize_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    
-
-
-
 
 
 
@@ -584,11 +636,8 @@ function sp_noise_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of sp_noise
-
-    
-
 if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
-    removeNoise(hObject,handles)
+    removeNoise(hObject,handles);
     % Add salt and pepper noise
     noise_density = 0.05; % Adjust this value to change the density of noise
     noisy_img = imnoise(handles.image_2, 'salt & pepper', noise_density);
@@ -596,16 +645,15 @@ if ((get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 1)
     
     
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
-        
-        
+    
+    
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
-        
+    
     handles.noise = 1;
     guidata(hObject, handles);
 end
@@ -620,23 +668,22 @@ function gaussian_noise_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of gaussian_noise
 %
 if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 2
-
+    
     removeNoise(hObject,handles);
     
     % Add Gaussian noise
     noise_mean = 0; % Mean of the noise
     noise_var = 0.01; % Variance of the noise
     noisy_img = imnoise(handles.image_2, 'gaussian', noise_mean, noise_var);
-
-
+    
+    
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
-        
-        
+    
+    
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
     
@@ -658,16 +705,15 @@ if (get(hObject,'Value') == get(hObject,'Max'))&& handles.noise ~= 3
     noisy_img = imnoise(handles.image_2, 'speckle', noise_density);
     
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
-        
-        
+    
+    
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
-        
+    
     handles.noise = 3;
     guidata(hObject, handles);
 end
@@ -680,9 +726,9 @@ function periodic_noise_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of periodic_noise
 if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
-
-
-
+    
+    
+    
     %removeNoise(hObject,handles);
     % Convert the image to grayscale if it isn't already
     if ndims(handles.image_2) == 3
@@ -690,7 +736,7 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
     else
         gray_img = handles.image_2;
     end
-        
+    
     % Define the size of the noise pattern
     pattern_size = 20; % Adjust this value to change the size of the pattern
     
@@ -710,19 +756,18 @@ if (get(hObject,'Value') == get(hObject,'Max')) && handles.noise ~= 4
     
     % Convert the noisy image back to uint8
     noisy_img = im2uint8(noisy_img);
-
+    
     % set the applied noise image to working image
     set(handles.axes2,'Units','pixels');
-    resizePos2 = get(handles.axes2,'Position');
-    handles.image_2 = imresize(noisy_img, [resizePos2(3) resizePos2(3)]);
+    handles.image_2 = noisy_img;
     axes(handles.axes2);
     imshow(handles.image_2);
     set(handles.axes2,'Units','normalized');
-        
-        
+    
+    
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts);
-        
+    
     handles.noise = 4;
     guidata(hObject, handles);
 end
@@ -733,4 +778,181 @@ function pushbutton21_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton21 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    removeNoise(hObject,handles)
+removeNoise(hObject,handles)
+
+
+
+function imagex_x_Callback(hObject, eventdata, handles)
+% hObject    handle to imagex_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of imagex_x as text
+%        str2double(get(hObject,'String')) returns contents of imagex_x as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function imagex_x_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to imagex_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function image_y_Callback(hObject, eventdata, handles)
+% hObject    handle to image_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of image_y as text
+%        str2double(get(hObject,'String')) returns contents of image_y as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function image_y_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to image_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in geometric_spatial.
+function geometric_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to geometric_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    Kr = 3;
+    Kc = 3;
+    g=im2double(handles.image_2);
+    handles.image_2 = exp(imfilter(log(g), ones(Kr, Kc), 'replicate')).^(1/(Kr*Kc));
+    
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of geometric_spatial
+
+% --- Executes on button press in harmonic_spatial.
+function harmonic_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to harmonic_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    Kr = 3;
+    Kc = 3;
+    handles.image_2 = im2double(handles.image_2);
+    handles.image_2 = (Kr*Kc)./imfilter(1./(handles.image_2+eps), ones(Kr, Kc), 'replicate');
+
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of harmonic_spatial
+
+
+% --- Executes on button press in Contraharmonic_spatial.
+function Contraharmonic_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to Contraharmonic_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    Ord = 1;
+    Kr = 3;
+    Kc = 3;
+    Img=im2double(handles.image_2);
+    handles.image_2=imfilter(Img.^(Ord+1), ones(Kr, Kc), 'replicate')./imfilter(Img.^(Ord), ones(Kr,Kc), 'replicate');
+
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of Contraharmonic_spatial
+
+
+% --- Executes on button press in alpha_spatial.
+function alpha_spatial_Callback(hObject, eventdata, handles)
+% hObject    handle to alpha_spatial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Convert the image to double precision
+    img = im2double(handles.image_2);
+    % Define the filter window size
+    window_size = 3;
+    % Define the alpha value
+    alpha = 0.2;
+    % Apply the alpha-trimmed mean filter
+    handles.image_2 = alpha_trimmed_mean_filter(img, window_size, alpha);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of alpha_spatial
+
+
+% --- Executes on selection change in resize_menu.
+function resize_menu_Callback(hObject, eventdata, handles)
+% hObject    handle to resize_menu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    standerd_image_size = [[1;1],[3;2],[4;3],[16;9],[5;4],[1;4],[1;2],[2;1],[3;1]];
+    val = get(hObject,'Value');
+    image_size = size(handles.image_2);
+    
+    target = standerd_image_size(:,val);
+    ratio = target(1)/target(2);
+    
+    handles.image_2 = imresize(handles.image_2, [image_size(1)*ratio, image_size(2)]);
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.image_2);
+    set(handles.axes2,'Units','normalized');
+
+    [counts,binLocations] = imhist(handles.image_2);
+    stem(handles.axes4,binLocations,counts);
+
+    guidata(hObject, handles);
+    
+% Hints: contents = cellstr(get(hObject,'String')) returns resize_menu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from resize_menu
+
+
+% --- Executes during object creation, after setting all properties.
+function resize_menu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to resize_menu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
