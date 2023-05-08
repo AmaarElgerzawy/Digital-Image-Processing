@@ -506,46 +506,35 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 function removeNoise(hObject,handles)
+
+   % Convert the image to grayscale if it isn't already
+    if ndims(handles.image_2) == 3
+        gray_img = rgb2gray(handles.image_2);
+    else
+        gray_img = handles.image_2;
+    end
+
     if handles.noise == 1
         %apply salt&pepper noise remove
 
-        % Convert the image to grayscale if it isn't already
-        if ndims(handles.image_2) == 3
-            gray_img = rgb2gray(handles.image_2);
-        else
-            gray_img = handles.image_2;
-        end
-        
         % Apply a median filter to the image
         filter_size = 3; % Adjust this value to change the size of the filter
         handles.image_2 = medfilt2(gray_img, [filter_size filter_size]);
 
-    elseif handles.noise == 2 || handles.noise == 3
-        %apply gaussian noise remove
-        % Convert the image to grayscale if it isn't already
-        if ndims(handles.image_2) == 3
-            gray_img = rgb2gray(handles.image_2);
-        else
-            gray_img = handles.image_2;
-        end
-  
+    elseif handles.noise == 3
+        
         % Apply a Gaussian filter to the image
         gaussianFilter = fspecial('gaussian', [3 3], 2);
         filteredImage = imfilter(gray_img, gaussianFilter);
 
-         % Apply a median filter to the image
-        filter_size = 3; % Adjust this value to change the size of the filter
-        handles.image_2 = medfilt2(filteredImage, [filter_size filter_size]);
     
+    elseif handles.noise == 2
+
+        handles.image_2 = imrest(gray_img,'hmean',3,3)
+        
+
     elseif handles.noise == 4
         %apply periodic noise remove
-
-        % Convert the image to grayscale if it isn't already
-        if ndims(handles.image_2) == 3
-            gray_img = rgb2gray(handles.image_2);
-        else
-            gray_img = handles.image_2;
-        end
         % Compute the Fourier transform of the image
         ftImage = fft2(double(gray_img));
         
@@ -570,6 +559,7 @@ function removeNoise(hObject,handles)
     [counts,binLocations] = imhist(handles.image_2);
     stem(handles.axes4,binLocations,counts)
     handles.noise = 0  
+
     guidata(hObject, handles);
     
 
