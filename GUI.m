@@ -564,63 +564,6 @@ function removeNoise(hObject,handles)
 
     guidata(hObject, handles);
     
-    % Apply a median filter to the image
-    filter_size = 3; % Adjust this value to change the size of the filter
-    handles.image_2 = medfilt2(gray_img, [filter_size filter_size]);
-    
-elseif handles.noise == 2 || handles.noise == 3
-    %apply gaussian noise remove
-    % Convert the image to grayscale if it isn't already
-    if ndims(handles.image_2) == 3
-        gray_img = rgb2gray(handles.image_2);
-    else
-        gray_img = handles.image_2;
-    end
-    
-    % Apply a Gaussian filter to the image
-    gaussianFilter = fspecial('gaussian', [3 3], 2);
-    filteredImage = imfilter(gray_img, gaussianFilter);
-    
-    % Apply a median filter to the image
-    filter_size = 3; % Adjust this value to change the size of the filter
-    handles.image_2 = medfilt2(filteredImage, [filter_size filter_size]);
-    
-elseif handles.noise == 4
-    %apply periodic noise remove
-    
-    % Convert the image to grayscale if it isn't already
-    if ndims(handles.image_2) == 3
-        gray_img = rgb2gray(handles.image_2);
-    else
-        gray_img = handles.image_2;
-    end
-    % Compute the Fourier transform of the image
-    ftImage = fft2(double(gray_img));
-    
-    % Create a notch filter to remove the periodic noise
-    D0 = 50; % distance from the origin to the notch filter
-    w = 5; % width of the notch filter
-    h = size(gray_img, 1);
-    w1 = round(h/2) - w/2; % location of the first notch filter
-    w2 = round(h/2) + w/2; % location of the second notch filter
-    notchFilter = ones(h);
-    notchFilter(w1:w2, round(h/2) - D0:round(h/2) + D0) = 0;
-    notchFilter(round(h/2) - D0:round(h/2) + D0, w1:w2) = 0;
-    
-    % Apply the notch filter to the Fourier transform of the image
-    filteredFtImage = ftImage .* notchFilter;
-    
-    % Compute the inverse Fourier transform to get the filtered image
-    handles.image_2 = real(ifft2(filteredFtImage));
-end
-imshow(handles.image_2);
-set(handles.axes2,'Units','normalized');
-[counts,binLocations] = imhist(handles.image_2);
-stem(handles.axes4,binLocations,counts);
-handles.noise = 0;
-guidata(hObject, handles);
-
-
 % --- Executes on button press in resize_btn.
 function resize_btn_Callback(hObject, eventdata, handles)
 % hObject    handle to resize_btn (see GCBO)
